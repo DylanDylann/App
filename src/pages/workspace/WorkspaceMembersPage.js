@@ -1,3 +1,4 @@
+import {useIsFocused} from '@react-navigation/native';
 import lodashGet from 'lodash/get';
 import PropTypes from 'prop-types';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
@@ -32,6 +33,7 @@ import * as Policy from '@userActions/Policy';
 import CONST from '@src/CONST';
 import ONYXKEYS from '@src/ONYXKEYS';
 import ROUTES from '@src/ROUTES';
+import SearchInputRef from './SearchInputRef';
 import {policyDefaultProps, policyPropTypes} from './withPolicy';
 import withPolicyAndFullscreenLoading from './withPolicyAndFullscreenLoading';
 
@@ -402,7 +404,15 @@ function WorkspaceMembersPage(props) {
             />
         );
     };
-
+    const isFocusedScreen = useIsFocused();
+    useEffect(() => {
+        if (!SearchInputRef.searchInput) {
+            return;
+        }
+        if (SearchInputRef.searchInput) {
+            setSearchValue(SearchInputRef.searchInput);
+        }
+    }, [isFocusedScreen]);
     return (
         <ScreenWrapper
             includeSafeAreaPaddingBottom={false}
@@ -465,7 +475,10 @@ function WorkspaceMembersPage(props) {
                             sections={[{data, indexOffset: 0, isDisabled: false}]}
                             textInputLabel={props.translate('optionsSelector.findMember')}
                             textInputValue={searchValue}
-                            onChangeText={setSearchValue}
+                            onChangeText={(value) => {
+                                SearchInputRef.searchInput = value;
+                                setSearchValue(value);
+                            }}
                             headerMessage={getHeaderMessage()}
                             headerContent={getHeaderContent()}
                             onSelectRow={(item) => toggleUser(item.accountID)}

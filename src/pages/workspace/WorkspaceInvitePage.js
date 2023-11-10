@@ -21,6 +21,7 @@ import * as Policy from '@userActions/Policy';
 import CONST from '@src/CONST';
 import ONYXKEYS from '@src/ONYXKEYS';
 import ROUTES from '@src/ROUTES';
+import SearchInputRef from './SearchInputRef';
 import {policyDefaultProps, policyPropTypes} from './withPolicy';
 import withPolicyAndFullscreenLoading from './withPolicyAndFullscreenLoading';
 
@@ -225,6 +226,14 @@ function WorkspaceInvitePage(props) {
         return OptionsListUtils.getHeaderMessage(personalDetails.length !== 0, usersToInvite.length > 0, searchValue);
     }, [excludedUsers, translate, searchTerm, policyName, usersToInvite, personalDetails.length]);
 
+    useEffect(() => {
+        if (!SearchInputRef.searchInput) {
+            return;
+        }
+        if (SearchInputRef.searchInput) {
+            setSearchTerm(SearchInputRef.searchInput);
+        }
+    }, []);
     return (
         <ScreenWrapper
             shouldEnableMaxHeight
@@ -254,7 +263,10 @@ function WorkspaceInvitePage(props) {
                             sections={sections}
                             textInputLabel={translate('optionsSelector.nameEmailOrPhoneNumber')}
                             textInputValue={searchTerm}
-                            onChangeText={setSearchTerm}
+                            onChangeText={(value) => {
+                                SearchInputRef.searchInput = value;
+                                setSearchTerm(value);
+                            }}
                             headerMessage={headerMessage}
                             onSelectRow={toggleOption}
                             onConfirm={inviteUser}
