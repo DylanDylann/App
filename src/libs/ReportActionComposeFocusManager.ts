@@ -72,6 +72,14 @@ function isEditFocused(): boolean {
     return !!editComposerRef.current?.isFocused();
 }
 
+let editingReportActionID: string;
+function getEditingReportID() {
+    return editingReportActionID;
+}
+function setEditingReportID(id: string) {
+    editingReportActionID = id;
+}
+
 export default {
     composerRef,
     onComposerFocus,
@@ -80,4 +88,6 @@ export default {
     isFocused,
     editComposerRef,
     isEditFocused,
+    getEditingReportID,
+    setEditingReportID,
 };

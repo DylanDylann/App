@@ -1,3 +1,4 @@
+import {useFocusEffect, useIsFocused} from '@react-navigation/native';
 import ExpensiMark from 'expensify-common/lib/ExpensiMark';
 import Str from 'expensify-common/lib/str';
 import lodashGet from 'lodash/get';
@@ -15,6 +16,7 @@ import refPropTypes from '@components/refPropTypes';
 import Tooltip from '@components/Tooltip';
 import useKeyboardState from '@hooks/useKeyboardState';
 import useLocalize from '@hooks/useLocalize';
+import usePrevious from '@hooks/usePrevious';
 import useReportScrollManager from '@hooks/useReportScrollManager';
 import useWindowDimensions from '@hooks/useWindowDimensions';
 import * as Browser from '@libs/Browser';
@@ -113,6 +115,26 @@ function ReportActionItemMessageEdit(props) {
     });
     const [selection, setSelection] = useState(getInitialSelection);
     const [isFocused, setIsFocused] = useState(false);
+    const isMountedRef = useRef(false);
+    useEffect(() => {
+        isMountedRef.current = true;
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
+    useEffect(() => {
+        const isEditing = ReportActionComposeFocusManager.getEditingReportID() === props.action.reportActionID;
+        setShouldShowComposeInputKeyboardAware(!isEditing);
+        setIsFocused(isEditing);
+        ReportActionComposeFocusManager.setEditingReportID(null);
+    }, []);
+    const setEditingReportIDWithDelay = useCallback((value: string | null) => {
+        setTimeout(() => {
+            if (isMountedRef.current) {
+                ReportActionComposeFocusManager.setEditingReportID(value);
+            }
+        }, 500);
+    }, []);
     const [hasExceededMaxCommentLength, setHasExceededMaxCommentLength] = useState(false);
     const [modal, setModal] = useState(false);
     const [onyxFocused, setOnyxFocused] = useState(false);
@@ -411,7 +433,7 @@ function ReportActionItemMessageEdit(props) {
                                 setIsFocused(true);
                                 reportScrollManager.scrollToIndex(props.index, true);
                                 setShouldShowComposeInputKeyboardAware(false);
-
+                                ReportActionComposeFocusManager.setEditingReportID(props.action.reportActionID);
                                 // Clear active report action when another action gets focused
                                 if (!EmojiPickerAction.isActive(props.action.reportActionID)) {
                                     EmojiPickerAction.clearActive();
@@ -422,6 +444,7 @@ function ReportActionItemMessageEdit(props) {
                             }}
                             onBlur={(event) => {
                                 setIsFocused(false);
+                                setEditingReportIDWithDelay(null);
                                 const relatedTargetId = lodashGet(event, 'nativeEvent.relatedTarget.id');
                                 if (_.contains([messageEditInput, emojiButtonID], relatedTargetId)) {
                                     return;
