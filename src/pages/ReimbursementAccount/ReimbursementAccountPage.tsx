@@ -206,7 +206,6 @@ function ReimbursementAccountPage({route, policy}: ReimbursementAccountPageProps
     const [shouldShowContinueSetupButton, setShouldShowContinueSetupButton] = useState(getShouldShowContinueSetupButtonInitialValue());
 
     useEffect(() => {
-        setShouldShowContinueSetupButton(getShouldShowContinueSetupButtonInitialValue());
         setHasACHDataBeenLoaded(reimbursementAccount !== CONST.REIMBURSEMENT_ACCOUNT.DEFAULT_DATA && isPreviousPolicy);
     }, [achData, getShouldShowContinueSetupButtonInitialValue, isPreviousPolicy, reimbursementAccount]);
 
