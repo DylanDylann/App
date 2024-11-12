@@ -87,7 +87,7 @@ function WorkspaceCompanyCardsListHeaderButtons({policyID, selectedFeed}: Worksp
                         style={shouldChangeLayout && styles.flex1}
                     />
                     <Button
-                        onPress={() => Navigation.navigate(ROUTES.WORKSPACE_COMPANY_CARDS_SETTINGS.getRoute(policyID))}
+                        onPress={() => Navigation.navigate(ROUTES.WORKSPACE_COMPANY_CARDS_SETTINGS.getRoute(policyID, selectedFeed))}
                         icon={Expensicons.Gear}
                         text={translate('common.settings')}
                         style={shouldChangeLayout && styles.flex1}

@@ -846,6 +846,7 @@ type SettingsNavigatorParamList = {
     };
     [SCREENS.WORKSPACE.COMPANY_CARDS_SETTINGS]: {
         policyID: string;
+        feed: string;
     };
     [SCREENS.WORKSPACE.COMPANY_CARDS_ASSIGN_CARD]: {
         policyID: string;
@@ -854,6 +855,7 @@ type SettingsNavigatorParamList = {
     };
     [SCREENS.WORKSPACE.COMPANY_CARDS_SETTINGS_FEED_NAME]: {
         policyID: string;
+        feed: string;
     };
     [SCREENS.WORKSPACE.EXPENSIFY_CARD_DETAILS]: {
         policyID: string;
