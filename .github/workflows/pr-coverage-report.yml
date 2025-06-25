@@ -1,0 +1,65 @@
+name: PR Coverage Report
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  coverage-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Setup Node
+        uses: ./.github/actions/composite/setupNode
+
+      - name: Install dependencies (PR branch)
+        run: npm ci
+
+      - name: Run Jest coverage (PR branch)
+        run: npm test -- --coverage --coverageReporters=json-summary
+
+      - name: Save PR branch coverage summary
+        run: cp coverage/coverage-summary.json pr-coverage-summary.json
+
+      - name: Upload Jest HTML coverage report (PR branch)
+        uses: actions/upload-artifact@v4
+        with:
+          name: jest-coverage-pr
+          path: coverage/lcov-report/
+
+      - name: Checkout base branch
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git checkout ${{ github.event.pull_request.base.ref }}
+
+      - name: Install dependencies (base branch)
+        run: npm ci
+
+      - name: Run Jest coverage (base branch)
+        run: npm test -- --coverage --coverageReporters=json-summary
+
+      - name: Save base branch coverage summary
+        run: cp coverage/coverage-summary.json base-coverage-summary.json
+
+      - name: Upload Jest HTML coverage report (base branch)
+        uses: actions/upload-artifact@v4
+        with:
+          name: jest-coverage-base
+          path: coverage/lcov-report/
+
+      - name: Upload coverage summaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: jest-coverage-summaries
+          path: |
+            base-coverage-summary.json
+            pr-coverage-summary.json
+
+      - name: Update PR with Coverage Section
+        uses: ./.github/actions/javascript/updateCoverageSection
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
