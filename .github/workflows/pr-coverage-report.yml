@@ -8,13 +8,12 @@ jobs:
   coverage-report:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout PR branch
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
+      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
 
       - name: Setup Node
         uses: ./.github/actions/composite/setupNode
+        with:
+          IS_DESKTOP_BUILD: true
 
       - name: Install dependencies (PR branch)
         run: npm ci
@@ -59,7 +58,10 @@ jobs:
             base-coverage-summary.json
             pr-coverage-summary.json
 
-      - name: Update PR with Coverage Section
-        uses: ./.github/actions/javascript/updateCoverageSection
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+      - name: Run octocov-action
+        uses: k1LoW/octocov-action@v1
+
+      # - name: Update PR with Coverage Section
+      #   uses: ./.github/actions/javascript/updateCoverageSection
+      #   with:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
