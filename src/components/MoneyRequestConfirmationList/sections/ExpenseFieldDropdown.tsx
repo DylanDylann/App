@@ -93,12 +93,13 @@ type ExpenseFieldDropdownProps = Omit<ExpenseFieldRowProps, 'onPress' | 'anchorR
  *
  * `PopoverWithMeasuredContent` makes it a pop-over on a wide layout and a bottom sheet on a narrow one. The
  * pop-over matches the row's width and opens below it, or above when there isn't room, capped so it is never
- * clipped. Knows nothing about any particular field: each passes its own list in through `renderDropdown`.
+ * clipped. A landscape phone has room for neither, so there the row opens its full-page selector. Knows nothing
+ * about any particular field: each passes its own list in through `renderDropdown`.
  */
 function ExpenseFieldDropdown({renderDropdown, shouldOpenInDropdown, onPress, ...rowProps}: ExpenseFieldDropdownProps) {
     const {windowHeight} = useWindowDimensions();
     // eslint-disable-next-line rulesdir/prefer-shouldUseNarrowLayout-instead-of-isSmallScreenWidth -- must match PopoverWithMeasuredContent's dock decision, which is on isSmallScreenWidth
-    const {isSmallScreenWidth} = useResponsiveLayout();
+    const {isSmallScreenWidth, isInLandscapeMode} = useResponsiveLayout();
     const {contentHeaderHeight} = useContentHeaderHeight();
     const {top: safeAreaTop} = useSafeAreaInsets();
     const anchorRef = useRef<ComponentRef<typeof View> | null>(null);
@@ -115,6 +116,13 @@ function ExpenseFieldDropdown({renderDropdown, shouldOpenInDropdown, onPress, ..
     const closeDropdown = () => setIsVisible(false);
 
     const openDropdown = () => {
+        // A landscape phone is too short for the bottom sheet, which `BaseModal` then wraps in its own ScrollView
+        // and the list inside it can no longer scroll. Open the full page instead, as the search filters do.
+        if (isInLandscapeMode) {
+            onPress();
+            return;
+        }
+
         if (isSmallScreenWidth) {
             setHasEverOpened(true);
             setIsVisible(true);
